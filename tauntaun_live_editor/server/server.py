@@ -30,8 +30,9 @@ def create_app(campaign, session_manager):
     data_dir = get_data_path()
     ws_clients = {}
 
-    app = Quart(__name__, static_folder=os.path.join(data_dir, 'client', 'static'),
-                template_folder=os.path.join(data_dir, 'client'))
+    app = Quart(__name__, static_folder=os.path.join(data_dir, 'web', 'static'),
+                template_folder=os.path.join(data_dir, 'web'))
+
 
     def zlib_message(message):
         message_zlib = zlib.compress(message.encode("utf-8"))
@@ -39,15 +40,15 @@ def create_app(campaign, session_manager):
 
     @app.route('/', defaults={'path': 'index.html'})
     async def send_root(path):
-        return await send_from_directory(os.path.join(data_dir, 'client'), path)
+        return await send_from_directory(os.path.join(data_dir, 'web'), path)
 
     @app.route('/<path:path>')
     async def send_static_root(path):
-        return await send_from_directory(os.path.join(data_dir, 'client'), path)
+        return await send_from_directory(os.path.join(data_dir, 'web'), path)
 
     @app.route('/static/<path:path>')
     async def send_static(path):
-        return await send_from_directory(os.path.join(data_dir, 'client', 'static'), path)
+        return await send_from_directory(os.path.join(data_dir, 'web', 'static'), path)
 
     @app.route('/game/mission')
     async def render_mission():
