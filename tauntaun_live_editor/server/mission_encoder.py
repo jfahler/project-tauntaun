@@ -34,7 +34,7 @@ class MissionEncoder(json.JSONEncoder):
         }
 
     def coalition(self, obj):
-        bullseye = obj.bullseye if not None else {'x': 0, 'y': 0}
+        bullseye = obj.bullseye if obj.bullseye is not None else {'x': 0, 'y': 0}
         bullseye = Point(bullseye['x'], bullseye['y'], self.dcs_terrain)
         return {
             'name': obj.name,
