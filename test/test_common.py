@@ -15,7 +15,14 @@ from tauntaun_live_editor.camp import Campaign
 def create_mission() -> Mission:
     m = dcs.Mission(dcs.terrain.Caucasus())
 
-    batumi = m.terrain.batumi()
+    # pydcs 0.15 removed the dedicated helper method for airports such as
+    # ``batumi()``. Airports are now exposed through the ``airports`` mapping
+    # indexed by name, so use that when available for compatibility.
+    batumi = (
+        m.terrain.batumi()
+        if hasattr(m.terrain, "batumi")
+        else m.terrain.airports["Batumi"]
+    )
     batumi.set_blue()
 
     usa = m.country("USA")
