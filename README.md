@@ -73,7 +73,7 @@ I recommend checking dev builds if something is missing(e.g. new weapon) or brok
 #### Configuration
 Configuration can be found at
 ```
-Windows: C:/<User>/AppData/Roaming/tauntaun_live_editor/config.json
+Windows: C:/<User>/AppData/Roaming/tauntaun-live-editor/config.json
 ```
 admin_password: password in SHA256 format, default is 1234
 #### Run server
