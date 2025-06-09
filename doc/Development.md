@@ -20,7 +20,7 @@ yarn install
 yarn start
 ```
 
-This should open Tauntaun in your OS default brower.
+This should open Tauntaun in your OS default browser.
 
 ## Backend
 
