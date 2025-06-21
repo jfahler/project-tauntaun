@@ -33,6 +33,11 @@
   margin: 0 10px 0 0;
 }
 
+.App > header h1 img {
+  height: 40px;
+  vertical-align: middle;
+}
+
 .App .Menubar{
   grid-column: 1 /span 1;
   grid-row: 2 / 2;

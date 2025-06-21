@@ -126,7 +126,9 @@ export const App: React.FunctionComponent = () => {
             <section className="App">
               <header>
                 <div className="titleVersion">
-                  <h1>Project TaunTaun</h1>
+                  <h1>
+                    <img src="/ops-center-logo.png" alt="Ops Center" />
+                  </h1>
                   <Version />
                 </div>
                 <div>
