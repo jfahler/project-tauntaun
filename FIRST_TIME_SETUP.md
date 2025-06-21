@@ -21,21 +21,43 @@ This appears to be your first time running the application.
 Let's configure your DCS installation path.
 
 🔍 Found possible DCS installations:
-  1. I:/DCS World OpenBeta
-  2. C:/Users/jfahl/Saved Games/DCS.openbeta
-  3. Enter custom path
-  4. Skip (use default detection)
+  1. C:/Program Files/Eagle Dynamics/DCS World
+  2. C:/Program Files/Eagle Dynamics/DCS World OpenBeta
+  3. D:/DCS World OpenBeta
+  4. Enter custom path
+  5. Skip (use default detection)
+  6. Development mode (no DCS installation required)
 
-Select DCS installation (1-4): 
+Select DCS installation (1-6): 
 ```
 
 ## 📁 Configuration Options
 
 ### DCS Installation Path
 The setup will automatically detect common DCS installations:
+
+#### Windows
 - **Program Files locations**: `C:/Program Files/Eagle Dynamics/DCS World*`
-- **Custom drives**: `I:/DCS World OpenBeta`, `D:/DCS World`, etc.
+- **Drive roots**: `C:/DCS World`, `D:/DCS World OpenBeta`, etc. (C: through Z:)
 - **Saved Games**: `%USERPROFILE%/Saved Games/DCS*`
+
+#### Linux
+- **System directories**: `/opt/DCS World*`, `/usr/local/DCS World*`
+- **User directories**: `/home/*/DCS World*`, `/home/*/Games/DCS World*`
+- **Steam installations**: `/home/*/.steam/steam/steamapps/common/DCSWorld*`
+- **Config directories**: `~/.config/DCS*`, `~/.local/share/DCS*`
+
+#### macOS
+- **Applications**: `/Applications/DCS World*.app`
+- **User Applications**: `/Users/*/Applications/DCS World*.app`
+- **Games directories**: `/Users/*/Games/DCS World*.app`
+- **Support directories**: `~/Library/Application Support/DCS*`
+
+### Development Mode
+For testing and development without a DCS installation:
+- Select "Development mode" during setup
+- The application will run without requiring DCS files
+- Useful for UI development and testing
 
 ### Missions Directory
 Choose where to store your missions:
@@ -51,7 +73,7 @@ If you need to modify settings later, you can:
 ### Edit the Config File
 ```json
 {
-  "dcs_directory": "I:/DCS World OpenBeta",
+  "dcs_directory": "C:/Program Files/Eagle Dynamics/DCS World",
   "missions_directory": "./missions",
   "setup_complete": true,
   "setup_version": "1.0"
@@ -61,6 +83,10 @@ If you need to modify settings later, you can:
 ### Reset Setup
 Delete the `local-config.json` file to trigger setup again:
 ```bash
+# Windows
+del local-config.json
+
+# Linux/macOS
 rm local-config.json
 ```
 
@@ -88,8 +114,10 @@ project-tauntaun/
 
 - **User-Friendly**: Guided setup process
 - **Secure**: Local configuration only
+- **Cross-Platform**: Supports Windows, Linux, and macOS
 - **Flexible**: Multiple DCS installation detection
 - **Robust**: Fallback to default detection
+- **Development-Friendly**: Option to run without DCS installation
 - **Maintainable**: Easy to modify and extend
 
 ## 🔄 Migration from Old System
@@ -109,11 +137,17 @@ If you were using the old configuration system:
 - Verify your DCS installation path
 - Check that the path contains `DCS.exe`, `CoreMods`, or `Mods`
 - Use the "Enter custom path" option
+- For development, use "Development mode"
 
 ### Config File Issues
 - Delete `local-config.json` to reset
 - Check file permissions
 - Verify JSON syntax is valid
+
+### Cross-Platform Issues
+- **Linux**: Ensure proper permissions on config directories
+- **macOS**: Check Gatekeeper settings for downloaded applications
+- **Windows**: Run as administrator if needed for Program Files access
 
 ---
 

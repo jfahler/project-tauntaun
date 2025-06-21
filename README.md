@@ -1,16 +1,16 @@
-##Tauntaun Live Editor - BULLETDCS Version (0.4) - This exists to help me learn more about Python, Git, and to see if this can be used alongside programs like DCS Server Bot. 
+##Tauntaun Live Editor - Community Version (0.4) - A collaborative mission planning tool for DCS World with enhanced features and cross-platform support.
 
-
-
-# Bullet Magnet (jfahler) TODO: 
+# Community TODO: 
 
 ## ✅ Done
 - [x] Forked and cloned the original UOAF repo
 - [x] Integrated working frontend (`create-react-app`) with backend (`Quart`)
 - [x] Built and served frontend (`npm run build`)
 - [x] Verified backend works (`camp.py`) and serves frontend on `http://0.0.0.0:8080`
-- [x] Committed and pushed to your GitHub repo (`main` branch)
+- [x] Committed and pushed to GitHub repo (`main` branch)
 - [x] Verified GitHub SSH access and deleted unused `master` branch
+- [x] Added cross-platform DCS installation detection (Windows, Linux, macOS)
+- [x] Added development mode option for testing without DCS installation
 
 ## 🛠️ In Progress / Next Up
 
@@ -74,8 +74,19 @@ I recommend checking dev builds if something is missing(e.g. new weapon) or brok
 Configuration can be found at
 ```
 Windows: C:/<User>/AppData/Roaming/tauntaun_live_editor/config.json
+Linux: ~/.local/share/tauntaun-live-editor/config.json
+macOS: ~/Library/Application Support/tauntaun-live-editor/config.json
 ```
 admin_password: password in SHA256 format, default is 1234
+
+#### DCS Installation Detection
+The application can automatically detect DCS installations on:
+- **Windows**: Common Program Files locations and drive roots (C: through Z:)
+- **Linux**: `/opt`, `/usr/local`, Steam installations, and user directories
+- **macOS**: `/Applications`, user Applications, and Games directories
+
+For development testing, you can run without a DCS installation by selecting "Development mode" during setup.
+
 #### Run server
 ```
 tauntaun_live_editor.exe

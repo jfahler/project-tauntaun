@@ -27,30 +27,174 @@ def find_dcs_installations():
     """Find possible DCS installations."""
     possible_paths = []
     
-    # Common installation paths
-    common_paths = [
-        "C:/Program Files/Eagle Dynamics/DCS World",
-        "C:/Program Files/Eagle Dynamics/DCS World OpenBeta",
-        "D:/Program Files/Eagle Dynamics/DCS World",
-        "D:/Program Files/Eagle Dynamics/DCS World OpenBeta",
-        "E:/Program Files/Eagle Dynamics/DCS World",
-        "E:/Program Files/Eagle Dynamics/DCS World OpenBeta",
-        "I:/DCS World OpenBeta",
-        "I:/DCS World"
-    ]
+    # Common installation paths by platform
+    if sys.platform == "win32":
+        # Windows paths
+        common_paths = [
+            "C:/Program Files/Eagle Dynamics/DCS World",
+            "C:/Program Files/Eagle Dynamics/DCS World OpenBeta",
+            "D:/Program Files/Eagle Dynamics/DCS World",
+            "D:/Program Files/Eagle Dynamics/DCS World OpenBeta",
+            "E:/Program Files/Eagle Dynamics/DCS World",
+            "E:/Program Files/Eagle Dynamics/DCS World OpenBeta",
+            "F:/Program Files/Eagle Dynamics/DCS World",
+            "F:/Program Files/Eagle Dynamics/DCS World OpenBeta",
+            "G:/Program Files/Eagle Dynamics/DCS World",
+            "G:/Program Files/Eagle Dynamics/DCS World OpenBeta",
+            "H:/Program Files/Eagle Dynamics/DCS World",
+            "H:/Program Files/Eagle Dynamics/DCS World OpenBeta",
+            "I:/Program Files/Eagle Dynamics/DCS World",
+            "I:/Program Files/Eagle Dynamics/DCS World OpenBeta",
+            "J:/Program Files/Eagle Dynamics/DCS World",
+            "J:/Program Files/Eagle Dynamics/DCS World OpenBeta",
+            "K:/Program Files/Eagle Dynamics/DCS World",
+            "K:/Program Files/Eagle Dynamics/DCS World OpenBeta",
+            "L:/Program Files/Eagle Dynamics/DCS World",
+            "L:/Program Files/Eagle Dynamics/DCS World OpenBeta",
+            "M:/Program Files/Eagle Dynamics/DCS World",
+            "M:/Program Files/Eagle Dynamics/DCS World OpenBeta",
+            "N:/Program Files/Eagle Dynamics/DCS World",
+            "N:/Program Files/Eagle Dynamics/DCS World OpenBeta",
+            "O:/Program Files/Eagle Dynamics/DCS World",
+            "O:/Program Files/Eagle Dynamics/DCS World OpenBeta",
+            "P:/Program Files/Eagle Dynamics/DCS World",
+            "P:/Program Files/Eagle Dynamics/DCS World OpenBeta",
+            "Q:/Program Files/Eagle Dynamics/DCS World",
+            "Q:/Program Files/Eagle Dynamics/DCS World OpenBeta",
+            "R:/Program Files/Eagle Dynamics/DCS World",
+            "R:/Program Files/Eagle Dynamics/DCS World OpenBeta",
+            "S:/Program Files/Eagle Dynamics/DCS World",
+            "S:/Program Files/Eagle Dynamics/DCS World OpenBeta",
+            "T:/Program Files/Eagle Dynamics/DCS World",
+            "T:/Program Files/Eagle Dynamics/DCS World OpenBeta",
+            "U:/Program Files/Eagle Dynamics/DCS World",
+            "U:/Program Files/Eagle Dynamics/DCS World OpenBeta",
+            "V:/Program Files/Eagle Dynamics/DCS World",
+            "V:/Program Files/Eagle Dynamics/DCS World OpenBeta",
+            "W:/Program Files/Eagle Dynamics/DCS World",
+            "W:/Program Files/Eagle Dynamics/DCS World OpenBeta",
+            "X:/Program Files/Eagle Dynamics/DCS World",
+            "X:/Program Files/Eagle Dynamics/DCS World OpenBeta",
+            "Y:/Program Files/Eagle Dynamics/DCS World",
+            "Y:/Program Files/Eagle Dynamics/DCS World OpenBeta",
+            "Z:/Program Files/Eagle Dynamics/DCS World",
+            "Z:/Program Files/Eagle Dynamics/DCS World OpenBeta",
+            # Also check root of drives
+            "C:/DCS World",
+            "C:/DCS World OpenBeta",
+            "D:/DCS World",
+            "D:/DCS World OpenBeta",
+            "E:/DCS World",
+            "E:/DCS World OpenBeta",
+            "F:/DCS World",
+            "F:/DCS World OpenBeta",
+            "G:/DCS World",
+            "G:/DCS World OpenBeta",
+            "H:/DCS World",
+            "H:/DCS World OpenBeta",
+            "I:/DCS World",
+            "I:/DCS World OpenBeta",
+            "J:/DCS World",
+            "J:/DCS World OpenBeta",
+            "K:/DCS World",
+            "K:/DCS World OpenBeta",
+            "L:/DCS World",
+            "L:/DCS World OpenBeta",
+            "M:/DCS World",
+            "M:/DCS World OpenBeta",
+            "N:/DCS World",
+            "N:/DCS World OpenBeta",
+            "O:/DCS World",
+            "O:/DCS World OpenBeta",
+            "P:/DCS World",
+            "P:/DCS World OpenBeta",
+            "Q:/DCS World",
+            "Q:/DCS World OpenBeta",
+            "R:/DCS World",
+            "R:/DCS World OpenBeta",
+            "S:/DCS World",
+            "S:/DCS World OpenBeta",
+            "T:/DCS World",
+            "T:/DCS World OpenBeta",
+            "U:/DCS World",
+            "U:/DCS World OpenBeta",
+            "V:/DCS World",
+            "V:/DCS World OpenBeta",
+            "W:/DCS World",
+            "W:/DCS World OpenBeta",
+            "X:/DCS World",
+            "X:/DCS World OpenBeta",
+            "Y:/DCS World",
+            "Y:/DCS World OpenBeta",
+            "Z:/DCS World",
+            "Z:/DCS World OpenBeta"
+        ]
+    elif sys.platform == "linux":
+        # Linux paths
+        common_paths = [
+            "/opt/DCS World",
+            "/opt/DCS World OpenBeta",
+            "/usr/local/DCS World",
+            "/usr/local/DCS World OpenBeta",
+            "/home/*/DCS World",
+            "/home/*/DCS World OpenBeta",
+            "/home/*/Games/DCS World",
+            "/home/*/Games/DCS World OpenBeta",
+            "/home/*/.steam/steam/steamapps/common/DCSWorld",
+            "/home/*/.steam/steam/steamapps/common/DCSWorldOpenBeta"
+        ]
+    elif sys.platform == "darwin":
+        # macOS paths
+        common_paths = [
+            "/Applications/DCS World.app",
+            "/Applications/DCS World OpenBeta.app",
+            "/Users/*/Applications/DCS World.app",
+            "/Users/*/Applications/DCS World OpenBeta.app",
+            "/Users/*/Games/DCS World.app",
+            "/Users/*/Games/DCS World OpenBeta.app"
+        ]
+    else:
+        common_paths = []
     
     # Check common paths
     for path in common_paths:
-        if os.path.exists(path):
-            possible_paths.append(path)
+        if "*" in path:
+            # Handle wildcard paths
+            import glob
+            expanded_paths = glob.glob(path)
+            for expanded_path in expanded_paths:
+                if os.path.exists(expanded_path):
+                    possible_paths.append(expanded_path)
+        else:
+            if os.path.exists(path):
+                possible_paths.append(path)
     
-    # Check Saved Games
-    saved_games = os.path.join(os.environ.get('USERPROFILE', ''), 'Saved Games')
-    saved_games_paths = [
-        os.path.join(saved_games, "DCS"),
-        os.path.join(saved_games, "DCS.openbeta"),
-        os.path.join(saved_games, "DCS.openbeta_server")
-    ]
+    # Check Saved Games (Windows) or equivalent directories
+    if sys.platform == "win32":
+        saved_games = os.path.join(os.environ.get('USERPROFILE', ''), 'Saved Games')
+        saved_games_paths = [
+            os.path.join(saved_games, "DCS"),
+            os.path.join(saved_games, "DCS.openbeta"),
+            os.path.join(saved_games, "DCS.openbeta_server")
+        ]
+    elif sys.platform == "linux":
+        home = os.path.expanduser("~")
+        saved_games_paths = [
+            os.path.join(home, ".config/DCS"),
+            os.path.join(home, ".config/DCS.openbeta"),
+            os.path.join(home, ".local/share/DCS"),
+            os.path.join(home, ".local/share/DCS.openbeta")
+        ]
+    elif sys.platform == "darwin":
+        home = os.path.expanduser("~")
+        saved_games_paths = [
+            os.path.join(home, "Library/Application Support/DCS"),
+            os.path.join(home, "Library/Application Support/DCS.openbeta"),
+            os.path.join(home, "Documents/DCS"),
+            os.path.join(home, "Documents/DCS.openbeta")
+        ]
+    else:
+        saved_games_paths = []
     
     for path in saved_games_paths:
         if os.path.exists(path):
@@ -115,10 +259,11 @@ def main():
     
     print(f"  {len(possible_paths) + 1}. Enter custom path")
     print(f"  {len(possible_paths) + 2}. Skip (use default detection)")
+    print(f"  {len(possible_paths) + 3}. Development mode (no DCS installation required)")
     
     while True:
         try:
-            choice = input(f"\nSelect DCS installation (1-{len(possible_paths) + 2}): ").strip()
+            choice = input(f"\nSelect DCS installation (1-{len(possible_paths) + 3}): ").strip()
             choice_num = int(choice)
             
             if 1 <= choice_num <= len(possible_paths):
@@ -134,6 +279,10 @@ def main():
                 break
             elif choice_num == len(possible_paths) + 2:
                 print("⏭️  Skipping DCS path configuration. Using default detection.")
+                break
+            elif choice_num == len(possible_paths) + 3:
+                print("🧪 Development mode selected. No DCS installation required.")
+                update_config("")
                 break
             else:
                 print("❌ Invalid choice. Please try again.")

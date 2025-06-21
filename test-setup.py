@@ -41,8 +41,8 @@ def test_setup():
     # Test config loading/saving
     print("\n💾 Testing config loading/saving...")
     
-    # Use the first detected DCS installation (should be regular DCS)
-    dcs_path = possible_paths[0] if possible_paths else "I:/DCS World OpenBeta"
+    # Use the first detected DCS installation or a generic fallback
+    dcs_path = possible_paths[0] if possible_paths else "C:/Program Files/Eagle Dynamics/DCS World"
     test_config = {
         "dcs_directory": dcs_path,
         "missions_directory": "./missions",
