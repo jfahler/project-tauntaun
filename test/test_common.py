@@ -12,10 +12,16 @@ from dcs import Mission
 from tauntaun_live_editor.camp import Campaign
 
 
+def airport_by_name(terrain, name):
+    return next((a for a in terrain.airports.values() if a.name == name), None)
+
+
 def create_mission() -> Mission:
     m = dcs.Mission(dcs.terrain.Caucasus())
 
-    batumi = m.terrain.batumi()
+    batumi = airport_by_name(m.terrain, 'Batumi')
+    if batumi is None:
+        raise ValueError("Batumi airport not found in terrain.airports")
     batumi.set_blue()
 
     usa = m.country("USA")

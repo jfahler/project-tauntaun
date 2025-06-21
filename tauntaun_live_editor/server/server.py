@@ -4,9 +4,11 @@ import json
 import asyncio
 import logging
 import zlib
+import shutil
 from functools import wraps
+from werkzeug.utils import secure_filename
 
-from quart import Quart, send_from_directory, make_response
+from quart import Quart, send_from_directory, make_response, request, send_file
 from quart import websocket
 
 from hypercorn.config import Config
@@ -17,14 +19,16 @@ from tauntaun_live_editor.util import get_data_path, is_posix, get_miz_path
 import tauntaun_live_editor.config as config
 from tauntaun_live_editor.static_data import get_static_json
 from tauntaun_live_editor.server.mission_encoder import MissionEncoder
+from tauntaun_live_editor.coord import is_map_supported, get_supported_maps, get_map_display_name
 from dcs import Point
 
 logger = logging.basicConfig(level=logging.DEBUG)
 
+def json_response(data, status=200):
+    return make_response(json.dumps(data), status, {'Content-Type': 'application/json'})
+
 def plain_text_response(x):
-    resp = make_response(str(x))
-    resp.headers["Content-Type"] = "text/plain; charset=utf-8"
-    return resp
+    return make_response(x, 200, {'Content-Type': 'text/plain'})
 
 def create_app(campaign, session_manager):
     data_dir = get_data_path()
@@ -32,8 +36,7 @@ def create_app(campaign, session_manager):
 
     app = Quart(__name__, static_folder=os.path.join(data_dir, 'web', 'static'),
                 template_folder=os.path.join(data_dir, 'web'))
-
-
+    
     def zlib_message(message):
         message_zlib = zlib.compress(message.encode("utf-8"))
         return message_zlib
@@ -42,6 +45,11 @@ def create_app(campaign, session_manager):
     async def send_root(path):
         return await send_from_directory(os.path.join(data_dir, 'web'), path)
 
+    @app.route('/editor')
+    async def send_editor():
+        # Serve the original React app for the editor
+        return await send_from_directory(os.path.join(data_dir, 'web'), 'editor.html')
+
     @app.route('/<path:path>')
     async def send_static_root(path):
         return await send_from_directory(os.path.join(data_dir, 'web'), path)
@@ -49,6 +57,120 @@ def create_app(campaign, session_manager):
     @app.route('/static/<path:path>')
     async def send_static(path):
         return await send_from_directory(os.path.join(data_dir, 'web', 'static'), path)
+
+    @app.route('/game/upload_mission', methods=['POST'])
+    async def upload_mission():
+        try:
+            # Check if file was uploaded
+            if 'mission' not in (await request.files):
+                return json.dumps({'success': False, 'error': 'No mission file provided'})
+            
+            file = (await request.files)['mission']
+            
+            # Validate file extension
+            if not file.filename.lower().endswith('.miz'):
+                return json.dumps({'success': False, 'error': 'Invalid file type. Please upload a .miz file'})
+            
+            # Secure the filename
+            filename = secure_filename(file.filename)
+            
+            # Create uploads directory if it doesn't exist
+            uploads_dir = os.path.join(data_dir, 'uploads')
+            os.makedirs(uploads_dir, exist_ok=True)
+            
+            # Save the uploaded file
+            file_path = os.path.join(uploads_dir, filename)
+            await file.save(file_path)
+            
+            # Try to load the mission to check map support
+            try:
+                # Import dcs here to avoid circular imports
+                import dcs
+                mission = dcs.Mission()
+                mission.load_file(file_path)
+                
+                # Check if the map is supported
+                terrain_name = mission.terrain.name
+                if not is_map_supported(terrain_name):
+                    supported_maps = get_supported_maps()
+                    supported_display_names = [get_map_display_name(map_name) for map_name in supported_maps]
+                    
+                    error_message = f"Unsupported map: {get_map_display_name(terrain_name)}. "
+                    error_message += f"Supported maps: {', '.join(supported_display_names)}"
+                    
+                    # Clean up the uploaded file
+                    try:
+                        os.remove(file_path)
+                    except:
+                        pass
+                    
+                    return json.dumps({
+                        'success': False, 
+                        'error': error_message,
+                        'error_type': 'unsupported_map',
+                        'unsupported_map': terrain_name,
+                        'supported_maps': supported_maps
+                    })
+                
+                # Map is supported, load it into the campaign
+                campaign.load_mission(file_path)
+                logging.info(f"Mission uploaded and loaded: {filename} (Map: {get_map_display_name(terrain_name)})")
+                return json.dumps({
+                    'success': True, 
+                    'filename': filename,
+                    'map': terrain_name,
+                    'map_display_name': get_map_display_name(terrain_name)
+                })
+                
+            except KeyError as e:
+                # This usually indicates a missing aircraft/vehicle mod
+                error_key = str(e).strip("'")
+                error_message = f"Missing aircraft/vehicle mod: {error_key}. "
+                error_message += "This mission contains units from a mod that is not installed or not supported."
+                
+                # Clean up the uploaded file
+                try:
+                    os.remove(file_path)
+                except:
+                    pass
+                
+                logging.error(f"Missing mod in uploaded mission: {error_key}")
+                return json.dumps({
+                    'success': False, 
+                    'error': error_message,
+                    'error_type': 'missing_mod',
+                    'missing_mod': error_key
+                })
+                
+            except Exception as e:
+                # Clean up the uploaded file
+                try:
+                    os.remove(file_path)
+                except:
+                    pass
+                
+                logging.error(f"Failed to load uploaded mission: {e}")
+                return json.dumps({
+                    'success': False, 
+                    'error': f'Failed to load mission: {str(e)}',
+                    'error_type': 'load_error'
+                })
+                
+        except Exception as e:
+            logging.error(f"Upload error: {e}")
+            return json.dumps({'success': False, 'error': 'Upload failed'})
+
+    @app.route('/game/supported_maps')
+    async def get_supported_maps_endpoint():
+        """Get list of supported maps for the frontend."""
+        supported_maps = get_supported_maps()
+        maps_info = []
+        for map_name in supported_maps:
+            maps_info.append({
+                'id': map_name,
+                'name': get_map_display_name(map_name)
+            })
+        return json.dumps({'maps': maps_info})
 
     @app.route('/game/mission')
     async def render_mission():
@@ -68,14 +190,37 @@ def create_app(campaign, session_manager):
 
     @app.route('/game/mission_dir')
     async def render_mission_dir():
-        files = []
-        for (dirpath, dirnames, filenames) in os.walk(get_miz_path()):
-            files.extend(filenames)
-            break
+        return json_response(get_miz_path())
 
-        miz_files = list(filter(lambda x: x.endswith(".miz"), files))
-
-        return json.dumps(miz_files)
+    @app.route('/game/download_mission')
+    async def download_mission():
+        """Download the current mission as a .miz file"""
+        try:
+            # Get the current mission path
+            if campaign.loaded_mission_path:
+                mission_path = campaign.loaded_mission_path
+            else:
+                # If no mission is loaded, save to a temporary file
+                mission_path = os.path.join(get_miz_path(), "tauntaun_mission.miz")
+                campaign.save_mission(mission_path)
+            
+            # Check if the file exists
+            if not os.path.exists(mission_path):
+                return json_response({"error": "Mission file not found"}, status=404)
+            
+            # Return the file for download
+            directory = os.path.dirname(mission_path)
+            filename = os.path.basename(mission_path)
+            return await send_from_directory(
+                directory,
+                filename,
+                as_attachment=True,
+                mimetype='application/octet-stream'
+            )
+            
+        except Exception as e:
+            logging.error(f"Error downloading mission: {e}")
+            return json_response({"error": "Failed to download mission"}, status=500)
 
     def collect_websocket(on_connect, on_disconnect):
         def wrapper_0(func):

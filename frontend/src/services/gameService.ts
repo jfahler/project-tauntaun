@@ -106,7 +106,7 @@ function sendMessage<ValueType>(name: string, value: ValueType) {
 
 async function getMission(): Promise<Mission> {
   try {
-    const response = await fetch('/game/mission');
+    const response = await fetch('http://localhost:8080/game/mission');
     if (!response.ok) {
       throw new Error('Response is not OK');
     }
@@ -121,7 +121,7 @@ async function getMission(): Promise<Mission> {
 
 async function getMissionDir(): Promise<Array<string>> {
   try {
-    const response = await fetch('/game/mission_dir');
+    const response = await fetch('http://localhost:8080/game/mission_dir');
     if (!response.ok) {
       throw new Error('Response is not OK');
     }
@@ -136,7 +136,7 @@ async function getMissionDir(): Promise<Array<string>> {
 
 async function getSessions(): Promise<Sessions> {
   try {
-    const response = await fetch('/game/sessions');
+    const response = await fetch('http://localhost:8080/game/sessions');
     if (!response.ok) {
       throw new Error('Response is not OK');
     }
@@ -151,7 +151,7 @@ async function getSessions(): Promise<Sessions> {
 
 async function getStaticData(): Promise<DcsStaticData> {
   try {
-    const response = await fetch('/game/static_data');
+    const response = await fetch('http://localhost:8080/game/static_data');
     if (!response.ok) {
       throw new Error('Response is not OK');
     }
@@ -166,7 +166,7 @@ async function getStaticData(): Promise<DcsStaticData> {
 
 async function authAdminPassword(password: string): Promise<boolean> {
   try {
-    const response = await fetch(`/game/auth_admin/${password}`);
+    const response = await fetch(`http://localhost:8080/game/auth_admin/${password}`);
     const result = await response.text();
     return result === 'true';
   } catch (error) {

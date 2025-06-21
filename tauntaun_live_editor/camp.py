@@ -3,28 +3,66 @@ import os.path
 import itertools
 import argparse
 import logging
-import pkg_resources # pyinstaller
-
 import sys
+import contextlib
+import io
+
+# Set DCS path environment variables before importing pydcs
+# This might prevent the "Couldn't detect" warnings
+from tauntaun_live_editor.first_time_setup import get_dcs_directory as get_local_dcs_dir
+local_dcs_dir = get_local_dcs_dir()
+if local_dcs_dir and os.path.exists(local_dcs_dir):
+    os.environ['DCS_PATH'] = local_dcs_dir
+    os.environ['DCS_DIR'] = local_dcs_dir
+    os.environ['DCS_WORLD_PATH'] = local_dcs_dir
+    os.environ['DCS_OPENBETA_PATH'] = local_dcs_dir  # Some tools look for this
+    os.environ['DCS_INSTALL_PATH'] = local_dcs_dir  # Alternative name
+
 sys.path.append(f"{os.path.dirname(os.path.realpath(__file__))}/dcs")
 
-import dcs
-from dcs.flyingunit import FlyingUnit
-from dcs.point import PointAction, MovingPoint
-from dcs.translation import String
-from dcs.unit import Skill
-from dcs.weapons_data import weapon_ids
-from dcs import terrain
-from dcs.terrain.terrain import NoParkingSlotError
-import dcs.mapping as mapping
-import dcs.task
-
+# Temporarily suppress both stdout and stderr during pydcs import to catch all warnings
+with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+    import dcs
+    from dcs.flyingunit import FlyingUnit
+    from dcs.point import PointAction, MovingPoint
+    from dcs.translation import String
+    from dcs.unit import Skill
+    from dcs.weapons_data import weapon_ids
+    from dcs import terrain
+    from dcs.terrain.terrain import NoParkingSlotError
+    import dcs.mapping as mapping
+    import dcs.task
 
 import tauntaun_live_editor.server as server
 import tauntaun_live_editor.config as config
 from tauntaun_live_editor.util import get_dcs_dir, get_data_path, is_posix, Timer, get_miz_path
 from tauntaun_live_editor.coord import lat_lon_to_xz
 from tauntaun_live_editor.sessions import SessionManager
+from tauntaun_live_editor.first_time_setup import run_first_time_setup_if_needed
+
+# Run first-time setup if needed
+run_first_time_setup_if_needed()
+
+# Suppress noisy livery parsing errors from pydcs
+logging.getLogger('dcs.liveries.livery').setLevel(logging.ERROR)
+
+# Suppress other pydcs warnings
+logging.getLogger('dcs').setLevel(logging.WARNING)
+
+# Suppress specific livery parsing errors that are harmless
+logging.getLogger('dcs.lua.parse').setLevel(logging.ERROR)
+
+# Suppress all livery-related errors at the module level
+for logger_name in ['dcs.liveries', 'dcs.lua', 'dcs.terrain']:
+    logging.getLogger(logger_name).setLevel(logging.ERROR)
+
+# Suppress all pydcs warnings completely
+logging.getLogger('dcs').setLevel(logging.ERROR)
+logging.getLogger('dcs.terrain').setLevel(logging.ERROR)
+logging.getLogger('dcs.aircraft').setLevel(logging.ERROR)
+logging.getLogger('dcs.vehicles').setLevel(logging.ERROR)
+logging.getLogger('dcs.ships').setLevel(logging.ERROR)
+logging.getLogger('dcs.weapons').setLevel(logging.ERROR)
 
 _data_dir = get_data_path()
 _build_in_default_mission = os.path.join(_data_dir, 'Missions/default.miz')
@@ -367,8 +405,19 @@ def main():
     try:
         config.load_config(args.config)
 
+        # Check DCS directory before creating mission to suppress warnings
+        dcs_dir = get_dcs_dir()
+        if dcs_dir:
+            logging.info(f"DCS directory detected: {dcs_dir}")
+        else:
+            logging.warning("DCS directory not found - some features may be limited")
+
         c = Campaign()
-        c.mission = dcs.Mission(terrain.Caucasus())
+        
+        # Suppress stderr during mission creation to catch pydcs warnings
+        with contextlib.redirect_stderr(io.StringIO()):
+            c.mission = dcs.Mission(terrain.Caucasus())
+        
         session_manager = SessionManager()
 
         if config.config.default_mission:
@@ -381,8 +430,11 @@ def main():
             c.load_mission(defualt_miz_path)
         else:
             logging.warning("Unable to load default mission, using empty mission!")
-            batumi = c.mission.terrain.batumi()
-            batumi.set_blue()
+            batumi = next(a for a in c.mission.terrain.airports.values() if a.name == 'Batumi')
+            if batumi is None:
+                logging.error("Batumi airport not found in terrain.airports")
+            else:
+                batumi.set_blue()
 
         server.run(c, session_manager, config.config.port)
 

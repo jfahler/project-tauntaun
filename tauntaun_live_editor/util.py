@@ -2,6 +2,7 @@ import os
 import asyncio
 import logging
 import tauntaun_live_editor.config as config
+from tauntaun_live_editor.first_time_setup import get_dcs_directory as get_local_dcs_dir, get_missions_directory as get_local_missions_dir
 
 
 class Timer:
@@ -34,21 +35,48 @@ def get_saved_games_dir():
     return saved_games
 
 def get_dcs_dir():
+    # First try local config (from first-time setup)
+    local_dcs_dir = get_local_dcs_dir()
+    if local_dcs_dir and os.path.exists(local_dcs_dir):
+        logging.debug(f"Using DCS directory from local config: {local_dcs_dir}")
+        return local_dcs_dir
+    
+    # Fall back to config file
     dcs_dir = config.config.dcs_directory
+    if dcs_dir and os.path.exists(dcs_dir):
+        logging.debug(f"Using DCS directory from config: {dcs_dir}")
+        return dcs_dir
 
-    if not os.path.exists(dcs_dir):
-        dcs_dir = os.path.join(get_saved_games_dir(), "DCS.openbeta")
+    # Fall back to Saved Games detection - prioritize regular DCS over OpenBeta
+    saved_games = get_saved_games_dir()
+    possible_paths = [
+        os.path.join(saved_games, "DCS"),  # Regular DCS World (prioritized)
+        os.path.join(saved_games, "DCS.openbeta"),  # DCS OpenBeta
+        os.path.join(saved_games, "DCS.openbeta_server")  # DCS Server
+    ]
+    
+    for path in possible_paths:
+        if os.path.exists(path):
+            logging.debug(f"Found DCS directory: {path}")
+            return path
 
-    if not os.path.exists(dcs_dir):
-        dcs_dir = os.path.join(get_saved_games_dir(), "DCS")
+    # Also check common installation directories
+    common_install_paths = [
+        "C:\\Program Files\\Eagle Dynamics\\DCS World",
+        "C:\\Program Files (x86)\\Eagle Dynamics\\DCS World",
+        "C:\\Program Files\\Eagle Dynamics\\DCS World OpenBeta",
+        "C:\\Program Files (x86)\\Eagle Dynamics\\DCS World OpenBeta",
+        "I:\\DCS World",
+        "I:\\DCS World OpenBeta"
+    ]
+    
+    for path in common_install_paths:
+        if os.path.exists(path):
+            logging.debug(f"Found DCS installation: {path}")
+            return path
 
-    if not os.path.exists(dcs_dir):
-        dcs_dir = os.path.join(get_saved_games_dir(), "DCS.openbeta_server")
-
-    if not os.path.exists(dcs_dir):
-        return ""
-
-    return dcs_dir
+    logging.warning("No DCS directory found in common locations")
+    return ""
 
 
 def knots_to_kph(knots):
@@ -93,8 +121,16 @@ def is_posix():
     return os.name == 'posix'
 
 def get_miz_path():
+    # First try local config (from first-time setup)
+    local_missions_dir = get_local_missions_dir()
+    if local_missions_dir and os.path.exists(local_missions_dir):
+        return local_missions_dir
+    
+    # Fall back to config file
     if os.path.exists(config.config.missions_directory):
         return os.path.join(config.config.missions_directory)
+    
+    # Fall back to default detection
     if is_posix():
         dcs_dir = get_data_path()
     else:

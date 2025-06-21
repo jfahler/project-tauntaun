@@ -8,6 +8,29 @@ def xz_to_lat_lon(terrain, x, z):
     c = _terrain_data[terrain]
     return _instance.xz_to_lat_lon(c, x, z)
 
+def is_map_supported(terrain_name):
+    """Check if a map/terrain is supported for coordinate conversion."""
+    return terrain_name in _terrain_data
+
+def get_supported_maps():
+    """Get a list of all supported maps/terrains."""
+    return list(_terrain_data.keys())
+
+def get_map_display_name(terrain_name):
+    """Get a user-friendly display name for a map."""
+    display_names = {
+        'Caucasus': 'Caucasus',
+        'PersianGulf': 'Persian Gulf',
+        'Nevada': 'Nevada Test and Training Range',
+        'Normandy': 'Normandy 1944',
+        'Syria': 'Syria',
+        'TheChannel': 'The Channel',
+        'MarianaIslands': 'Mariana Islands',
+        'Falklands': 'Falkland Islands',
+        'Sinai': 'Sinai Peninsula'
+    }
+    return display_names.get(terrain_name, terrain_name)
+
 class _CoordInterpolator(object):
     sm_a_default = 6375585.50700497
     sm_b_default = 6354209.24672509
@@ -462,5 +485,36 @@ _terrain_data = {
         'z': -147639.8755,
         'zone': 21,
         'southhemi': True
-    }
+    },
+    'Sinai': {
+        'x': 3325312.9999999693,  # false_northing from pydcs projection
+        'z': -169221.9999999585,  # -false_easting from pydcs projection  
+        'zone': 36,  # UTM zone for Sinai region
+        'southhemi': False
+    },
+    # The following maps are not yet supported in pydcs. Uncomment and update when support is added.
+    # 'Iraq': {
+    #     'x': 0.0,  # TODO: Replace with correct value
+    #     'z': 0.0,  # TODO: Replace with correct value
+    #     'zone': 38,  # TODO: Replace with correct value
+    #     'southhemi': False
+    # },
+    # 'Afghanistan': {
+    #     'x': 0.0,  # TODO: Replace with correct value
+    #     'z': 0.0,  # TODO: Replace with correct value
+    #     'zone': 42,  # TODO: Replace with correct value
+    #     'southhemi': False
+    # },
+    # 'GermanyColdWar': {
+    #     'x': 0.0,  # TODO: Replace with correct value
+    #     'z': 0.0,  # TODO: Replace with correct value
+    #     'zone': 32,  # TODO: Replace with correct value
+    #     'southhemi': False
+    # },
+    # 'Kola': {
+    #     'x': 0.0,  # TODO: Replace with correct value
+    #     'z': 0.0,  # TODO: Replace with correct value
+    #     'zone': 35,  # TODO: Replace with correct value
+    #     'southhemi': False
+    # }
 }
