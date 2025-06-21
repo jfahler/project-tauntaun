@@ -1,3 +1,55 @@
+##Tauntaun Live Editor - BULLETDCS Version (0.4) - This exists to help me learn more about Python, Git, and to see if this can be used alongside programs like DCS Server Bot. 
+
+
+
+# Bullet Magnet (jfahler) TODO: 
+
+## ✅ Done
+- [x] Forked and cloned the original UOAF repo
+- [x] Integrated working frontend (`create-react-app`) with backend (`Quart`)
+- [x] Built and served frontend (`npm run build`)
+- [x] Verified backend works (`camp.py`) and serves frontend on `http://0.0.0.0:8080`
+- [x] Committed and pushed to your GitHub repo (`main` branch)
+- [x] Verified GitHub SSH access and deleted unused `master` branch
+
+## 🛠️ In Progress / Next Up
+
+### 🔧 Code Hygiene
+- [ ] Run `npm i --package-lock-only` on Linux to fix audit error
+- [ ] Run `npm audit fix` to patch vulnerable packages
+- [ ] Add `.env.example` or `.env.template` with relevant vars if needed
+- [ ] Clean up logging noise and outdated Python warnings (e.g. `pkg_resources`)
+- [ ] Patch the `tuple index out of range` bug in the PyInstaller flow
+
+## 🧪 Testing & Dev Environment
+- [ ] Test mission loading with different `.miz` files in `data/Missions/`
+- [ ] Validate UI interactivity (websockets, unit editing, session sync)
+- [ ] Confirm frontend build path matches backend static file path
+- [ ] Add a dev-friendly startup script (e.g. `start-dev.sh` or `.ps1`)
+
+## 💻 Frontend Refinement Ideas
+- [ ] Replace `create-react-app` with Vite for faster dev builds *(optional)*
+- [ ] Update design (map UI, colors, logo) to move away from UOAF branding
+- [ ] Improve responsiveness / mobile support
+- [ ] Add version info / environment tag (dev, prod) to frontend footer
+
+## 📦 Packaging & Deployment
+- [ ] Build a working Windows `.exe` with PyInstaller using `camp.spec`
+- [ ] Build Linux deployment flow (e.g. `poetry export > requirements.txt`)
+- [ ] Consider Docker for cross-platform packaging
+
+## 📁 Repository Clean-Up
+- [ ] Add `README.md` section explaining your fork and changes
+- [ ] Set up GitHub project board or issues for tracking
+- [ ] Confirm branch protection rules (set `main` as default)
+
+## 🧠 Stretch Goals / Ideas
+- [ ] Add pilot profiles for persistent data tracking (Loggers integration)
+- [ ] Link this to your DCS-Arma Discord bot
+- [ ] Add image previews for missions or map overlays in the frontend
+- [ ] Add mission template selection or cloning in the UI
+
+
 ## Tauntaun Live Editor
 
 ![Screenshot](https://github.com/UOAF/project-tauntaun/raw/v0.1.0/images/screenshot.png)

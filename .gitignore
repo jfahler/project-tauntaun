@@ -11,3 +11,4 @@ tauntaun.miz
 node_modules
 .eslintcache
 tauntaun.log
+venv/

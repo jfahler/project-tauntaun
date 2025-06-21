@@ -20,7 +20,11 @@ pyproj = "^3.3.1"
 python = ">=3.8.0,<3.11"
 wheel = ">=0.36.0,<1.0.0"
 pydcs = {git = "https://github.com/pydcs/dcs.git", branch = "master"}
+<<<<<<< HEAD
 werkzeug = "2.3.8"
+=======
+werkzeug = "2.3.7"
+>>>>>>> 392fe564909e54fc2e6f50b60cb2a7a8b1d873d4
 
 [tool.poetry.dev-dependencies]
 pyinstaller = ">=5.0"
